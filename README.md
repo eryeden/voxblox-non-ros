@@ -1,6 +1,10 @@
 # Non-ros Voxblox
 ```bash
-git clone --recursive https://github.com/eryeden/voxblox-non-ros.git 
+git clone --recursive https://github.com/eryeden/voxblox-non-ros.git
+cd path/to/voxblox-non-ros/voxblox/
+mkdir build
+cmake ..
+make -j$(nporc)
 ```
 
 # Voxblox
