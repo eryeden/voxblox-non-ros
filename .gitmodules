@@ -1,0 +1,6 @@
+[submodule "voxblox/3rd/glog"]
+	path = voxblox/3rd/glog
+	url = https://github.com/google/glog.git
+[submodule "voxblox/3rd/minkindr"]
+	path = voxblox/3rd/minkindr
+	url = https://github.com/ethz-asl/minkindr.git
