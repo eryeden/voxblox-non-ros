@@ -7,7 +7,22 @@ project(voxblox)
 set(CMAKE_MACOSX_RPATH 0)
 add_definitions(-std=c++11 -Wall -Wextra)
 
-find_package(Protobuf REQUIRED)
+#find_package(Protobuf 3.12 REQUIRED)
+include(ExternalProject)
+ExternalProject_Add(protobuf
+        PREFIX protobuf
+        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd/protobuf-3.12.3/cmake"
+        CMAKE_CACHE_ARGS
+        -Dprotobuf_BUILD_TESTS:BOOL=OFF
+        -Dprotobuf_WITH_ZLIB:BOOL=OFF
+        -Dprotobuf_MSVC_STATIC_RUNTIME:BOOL=OFF
+        -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/protobuf
+        )
+set(Protobuf_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/protobuf/include)
+set(Protobuf_LIBRARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/protobuf/lib/)
+set(Protobuf_LIBRARY libprotobuf.a)
+
+
 
 ############
 # PROTOBUF #
@@ -20,7 +35,7 @@ set(PROTO_DEFNS proto/voxblox/Block.proto
 set(PROTOBUF_COMPILE_PYTHON true)
 
 # protobuf_generate_cpp(${BASE_PATH} PROTO_SRCS PROTO_HDRS ${PROTO_DEFNS})
-protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_DEFNS})
+#protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_DEFNS})
 # PROTOBUF_CATKIN_GENERATE_CPP2(${BASE_PATH} PROTO_SRCS PROTO_HDRS ${PROTO_DEFNS})
 
 # Eigen
@@ -62,33 +77,47 @@ set("${PROJECT_NAME}_SRCS"
 # LIBRARIES #
 #############
 add_library(${PROJECT_NAME}_proto
-  ${PROTO_SRCS} ${PROTO_HDRS}
+        proto/3.12.3/Block.pb.cc
+        proto/3.12.3/Block.pb.h
+        proto/3.12.3/Layer.pb.cc
+        proto/3.12.3/Layer.pb.h
+#  ${PROTO_SRCS} ${PROTO_HDRS}
 )
+add_dependencies(${PROJECT_NAME}_proto protobuf)
 
-message("Proto srcs")
-message(${PROTO_SRCS})
-message("Proto hdrs")
-message(${PROTO_HDRS})
-message(${CMAKE_CURRENT_BINARY_DIR})
+#message("Proto srcs")
+#message(${PROTO_SRCS})
+#message("Proto hdrs")
+#message(${PROTO_HDRS})
+#message(${CMAKE_CURRENT_BINARY_DIR})
 
 
 add_library(${PROJECT_NAME}
   ${${PROJECT_NAME}_SRCS}
 )
+
+#target_link_directories(${PROJECT_NAME}
+#        ${Protobuf_LIBRARY_DIR}
+#        )
+link_directories(${Protobuf_LIBRARY_DIR})
+
 target_link_libraries(${PROJECT_NAME} 
-  ${PROJECT_NAME}_proto
-  Eigen3::Eigen
-  ${PROTOBUF_LIBRARY}
-  glog::glog
+        ${PROJECT_NAME}_proto
+        Eigen3::Eigen
+#  ${PROTOBUF_LIBRARY}
+        ${Protobuf_LIBRARY}
+        glog::glog
   )
 
 
 target_include_directories(${PROJECT_NAME}
-  PUBLIC
-  include
-  3rd/minkindr/minkindr/include
-  ${Protobuf_INCLUDE_DIRS}
-  ${CMAKE_CURRENT_BINARY_DIR}
+        PUBLIC
+        include
+        3rd/minkindr/minkindr/include
+#        ${Protobuf_INCLUDE_DIRS}
+        ${Protobuf_INCLUDE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/proto/3.12.3/
+        ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 
